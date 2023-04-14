@@ -13,6 +13,24 @@ const calcModel = {
     state: calcState.default,
 }
 
+const soundMap = {};
+function makeSoundMap(){
+    let numSounds = document.querySelectorAll(".operator-sound");
+    numSounds.forEach((sound) => sound.volume = 0.3);
+    let hoverSounds = document.querySelectorAll(".hover-sound");
+    hoverSounds.forEach((sound) => sound.volume = 0.3);
+    let numButtons = document.querySelectorAll(".num-button");
+    numButtons.forEach((button, i) => {
+        soundMap[button.textContent + "click"] = numSounds[i%numSounds.length];
+        soundMap[button.textContent + "mouseover"] = hoverSounds[i%hoverSounds.length];
+    });
+}
+
+function playSound(soundKey){
+    soundMap[soundKey].currentTime = 0;
+    soundMap[soundKey].play();
+}
+
 //All elements that should flash when "=" is clicked
 const flashableElements = document.querySelectorAll("h1, .display");
 
@@ -65,6 +83,7 @@ function handleMiscClick(miscButton) {
 
 function handleClick(e) {
     this.classList.toggle("clicked");
+    playSound(this.textContent + "click");
     if (this.classList.contains('num-button')) {
         handleNumClick(this);
     }
@@ -93,12 +112,18 @@ function endTransition(e) {
     }
 }
 
+function handleMouseOver(e){
+    playSound(this.textContent + "mouseover");
+}
 
 document.querySelectorAll("button").forEach(thisbutton => {
     thisbutton.addEventListener('click', handleClick);
     thisbutton.addEventListener('transitionend', endTransition);
+    thisbutton.addEventListener('mouseover', handleMouseOver);
 });
 
 flashableElements.forEach(element => {
     element.addEventListener('transitionend', endTransition);
 });
+
+makeSoundMap();
