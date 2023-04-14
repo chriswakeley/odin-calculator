@@ -1,15 +1,79 @@
+const calcState = {
+    default: 0,
+    enteringOp1: 1,
+    enteringOp2: 2,
+    error: 3,
+}
+
+const calcModel = {
+    op1: "",
+    op2: "",
+    operator: null,
+    result: "",
+    state: calcState.default,
+}
+
 //All elements that should flash when "=" is clicked
 const flashableElements = document.querySelectorAll("h1, .display");
 
 
 // elements is a nodelist of elements to flash
-function flashElements(elements){
+function flashElements(elements) {
     elements.forEach((element) => element.classList.toggle("pre-clicked"));
+}
+
+function updateDisplay(input){
+    
+    let display = document.querySelector(".display-text");
+    display.textContent += "\n" + input.split("").join("\n");
+}
+
+//returns new operand based on current operand and input
+function updateOperand(currentOp, input){
+    if(input === "." &&
+    calcModel[currentOp].includes(".")){
+            return;
+    }
+    calcModel[currentOp] += input;
+    updateDisplay(input);
+}
+
+function handleNumClick(numButton) {
+    if (calcModel.state === calcState.default ||
+        calcModel.state === calcState.error) {
+
+        calcModel.state = calcState.enteringOp1;
+        let newInput = numButton.id === 'decimal' ? "0." : numButton.textContent;
+        updateOperand("op1", newInput);
+    }
+    else if(calcModel.state === calcState.enteringOp1 ||
+        calcModel.state === calcState.enteringOp2 ){
+        let op = calcModel.state === calcState.enteringOp1 ? "op1" : "op2";
+        updateOperand(op, numButton.textContent);
+    }
+}
+
+function handleOpClick(opButton) {
+
+}
+
+function handleMiscClick(miscButton) {
+    if (miscButton.id === "operate") {
+        flashElements(flashableElements);
+    }
 }
 
 function handleClick(e) {
     this.classList.toggle("clicked");
-    flashElements(flashableElements);
+    if (this.classList.contains('num-button')) {
+        handleNumClick(this);
+    }
+    else if (this.classList.contains('op-button')) {
+        handleOpClick(this);
+    }
+    else if (this.classList.contains('misc-button')) {
+        handleMiscClick(this);
+    }
 }
 
 function endTransition(e) {

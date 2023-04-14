@@ -71,6 +71,11 @@ body {
     border-width: 2px;
 }
 
+.display-text{
+    width: 1ch;
+    font-size: 2.4em;
+}
+
 button {
     background-color: rgba(0, 0, 0, 0);
     border-style: solid none;
@@ -78,6 +83,7 @@ button {
     border-color: rgba(0, 0, 0, 0);
     font-size: 2.4em;
     font-family: 'Cormorant Unicase', serif;
+    cursor: pointer;
     transition: 0.4s;
 }
 
@@ -96,8 +102,8 @@ button:hover:not(.clicked) {
 }
 
 .clicked {
-    color: rgb(198, 130, 253);
-    border-color: rgb(196, 125, 255);
+    color: rgb(128, 0, 255);
+    border-color: rgb(140, 0, 255);
     border-style: solid;
     border-radius: 25%;
     transition: 0.1s;
