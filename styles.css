@@ -58,6 +58,9 @@ body {
 #calc-background>.border {
     align-self: stretch;
     border-left: double;
+    border-right: none;
+    border-bottom: none;
+    border-top: none;
     border-bottom-right-radius: 50%;
     border-bottom-left-radius: 50%;
     border-color: rgba(207, 255, 33, 0.651);
@@ -72,9 +75,22 @@ body {
     align-items: center;
 }
 
-.display-text{
-    width: 1ch;
-    font-size: 2.4em;
+.op1, .op2, .op, .result{
+    display:flex;
+    flex-direction: column;
+    transition: flex 0.5s;
+}
+
+.new-digit {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    transition: flex 0.5s;
+}
+
+.settled-digit{
+    flex: 0 1 auto;
 }
 
 button {
@@ -96,16 +112,16 @@ button:hover:not(.clicked) {
 
 
 .pre-clicked:not(.clicked) {
-    border-color: rgba(207, 255, 33, 0.918);
-    color: rgba(207, 255, 33, 0.918);
+    border-color: rgba(207, 255, 33, 0.918) !important;
+    color: rgba(207, 255, 33, 0.918) !important;
     border-radius: 25%;
-    transition: 0.05s;
+    transition: 0.05s !important;
 }
 
 .clicked {
-    color: rgb(128, 0, 255);
-    border-color: rgb(140, 0, 255);
+    color: rgb(128, 0, 255) !important;
+    border-color: rgb(140, 0, 255) !important;
     border-style: solid;
     border-radius: 25%;
-    transition: 0.1s;
+    transition: 0.1s !important;
 }

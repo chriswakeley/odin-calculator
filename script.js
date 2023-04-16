@@ -2,7 +2,9 @@ const calcState = {
     default: 0,
     enteringOp1: 1,
     enteringOp2: 2,
-    error: 3,
+    operandEntered:3,
+    displayingResult: 4,
+    error: 5,
 }
 
 const calcModel = {
@@ -12,6 +14,10 @@ const calcModel = {
     result: "",
     state: calcState.default,
 }
+
+//All elements that should flash when "=" is clicked
+const flashOnEquals = document.querySelectorAll("h1, .display");
+const flashOnOp = document.querySelectorAll("#calc-background>.border");
 
 const soundMap = {};
 function makeSoundMap(){
@@ -40,19 +46,60 @@ function playSound(soundKey){
     soundMap[soundKey].play();
 }
 
-//All elements that should flash when "=" is clicked
-const flashableElements = document.querySelectorAll("h1, .display");
-
-
 // elements is a nodelist of elements to flash
 function flashElements(elements) {
     elements.forEach((element) => element.classList.toggle("pre-clicked"));
 }
 
-function updateDisplay(input){
-    
-    let display = document.querySelector(".display-text");
-    display.textContent += "\n" + input.split("").join("\n");
+function makeNewDigitElement(text){
+    const newDigit = document.createElement('div');
+    newDigit.textContent = text;
+
+    newDigit.classList.add("new-digit");
+    return newDigit;
+}
+
+function setEmptyAndShrink(element){
+    element.replaceChildren();
+    element.style.flex = "0 1 auto";
+}
+
+function setEmptyAndGrow(element){
+    element.replaceChildren();
+    element.style.flex = "1";
+}
+
+function updateDisplay(){
+    let result = document.querySelector(".result");
+    let op1 = document.querySelector(".op1");
+    let op2 = document.querySelector(".op2");
+    let op = document.querySelector(".op");
+    switch(calcModel.state){
+        
+        case calcState.default:
+            setEmptyAndShrink(result);
+            setEmptyAndShrink(op);
+            setEmptyAndGrow(op1);
+            setEmptyAndShrink(op2);
+            break;
+
+        case calcState.enteringOp1:
+            
+            if(result.childElementCount > 0){
+                setEmptyAndShrink(result);
+            }
+            let newDigit = calcModel.op1 === "0." && op1.childElementCount === 0 ?
+             "0." : calcModel.op1.charAt(calcModel.op1.length -1); 
+            [...newDigit].forEach((digit, i)=>{
+                op1.appendChild(makeNewDigitElement(digit));
+                requestAnimationFrame(() => [...op1.children][op1.childElementCount - (i + 1)].classList.toggle("settled-digit"));
+            });
+            
+    }
+
+
+    /*let display = document.querySelector(".display-text");
+    display.textContent += "\n" + input.split("").join("\n");*/
 }
 
 //returns new operand based on current operand and input
@@ -62,7 +109,7 @@ function updateOperand(currentOp, input){
             return;
     }
     calcModel[currentOp] += input;
-    updateDisplay(input);
+    updateDisplay();
 }
 
 function handleNumClick(numButton) {
@@ -81,12 +128,13 @@ function handleNumClick(numButton) {
 }
 
 function handleOpClick(opButton) {
-
+    flashElements(flashOnOp);
 }
 
 function handleMiscClick(miscButton) {
     if (miscButton.id === "operate") {
-        flashElements(flashableElements);
+        flashElements(flashOnEquals);
+        flashElements(flashOnOp);
     }
 }
 
@@ -131,8 +179,13 @@ document.querySelectorAll("button").forEach(thisbutton => {
     thisbutton.addEventListener('mouseover', handleMouseOver);
 });
 
-flashableElements.forEach(element => {
+flashOnEquals.forEach(element => {
+    element.addEventListener('transitionend', endTransition);
+});
+
+flashOnOp.forEach(element => {
     element.addEventListener('transitionend', endTransition);
 });
 
 makeSoundMap();
+updateDisplay("");
