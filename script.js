@@ -15,13 +15,22 @@ const calcModel = {
 
 const soundMap = {};
 function makeSoundMap(){
-    let numSounds = document.querySelectorAll(".operator-sound");
-    numSounds.forEach((sound) => sound.volume = 0.3);
+    let numSounds = document.querySelectorAll(".click-sound");
+    numSounds.forEach((sound) => sound.volume = 0.2);
     let hoverSounds = document.querySelectorAll(".hover-sound");
-    hoverSounds.forEach((sound) => sound.volume = 0.3);
+    hoverSounds.forEach((sound) => sound.volume = 0.2);
+    let miscSounds = document.querySelectorAll(".operator-sound");
+    miscSounds.forEach((sound) => sound.volume = (sound.src.includes("samples/finish2.mp3")) ? 0.7: 0.5);
+    
     let numButtons = document.querySelectorAll(".num-button");
     numButtons.forEach((button, i) => {
         soundMap[button.textContent + "click"] = numSounds[i%numSounds.length];
+        soundMap[button.textContent + "mouseover"] = hoverSounds[i%hoverSounds.length];
+    });
+
+    let miscButtons = document.querySelectorAll(".op-button, .misc-button");
+    miscButtons.forEach((button, i) => {
+        soundMap[button.textContent + "click"] = miscSounds[i%miscSounds.length];
         soundMap[button.textContent + "mouseover"] = hoverSounds[i%hoverSounds.length];
     });
 }
