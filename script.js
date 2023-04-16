@@ -2,7 +2,7 @@ const calcState = {
     default: 0,
     enteringOp1: 1,
     enteringOp2: 2,
-    operandEntered:3,
+    operandEntered: 3,
     displayingResult: 4,
     error: 5,
 }
@@ -15,33 +15,40 @@ const calcModel = {
     state: calcState.default,
 }
 
+const calcDisplay = {
+    result: document.querySelector(".result"),
+    op1: document.querySelector(".op1"),
+    op2: document.querySelector(".op2"),
+    op: document.querySelector(".op"),
+}
+
 //All elements that should flash when "=" is clicked
 const flashOnEquals = document.querySelectorAll("h1, .display");
 const flashOnOp = document.querySelectorAll("#calc-background>.border");
 
 const soundMap = {};
-function makeSoundMap(){
+function makeSoundMap() {
     let numSounds = document.querySelectorAll(".click-sound");
     numSounds.forEach((sound) => sound.volume = 0.2);
     let hoverSounds = document.querySelectorAll(".hover-sound");
     hoverSounds.forEach((sound) => sound.volume = 0.2);
     let miscSounds = document.querySelectorAll(".operator-sound");
-    miscSounds.forEach((sound) => sound.volume = (sound.src.includes("samples/finish2.mp3")) ? 0.7: 0.5);
-    
+    miscSounds.forEach((sound) => sound.volume = (sound.src.includes("samples/finish2.mp3")) ? 0.7 : 0.5);
+
     let numButtons = document.querySelectorAll(".num-button");
     numButtons.forEach((button, i) => {
-        soundMap[button.textContent + "click"] = numSounds[i%numSounds.length];
-        soundMap[button.textContent + "mouseover"] = hoverSounds[i%hoverSounds.length];
+        soundMap[button.textContent + "click"] = numSounds[i % numSounds.length];
+        soundMap[button.textContent + "mouseover"] = hoverSounds[i % hoverSounds.length];
     });
 
     let miscButtons = document.querySelectorAll(".op-button, .misc-button");
     miscButtons.forEach((button, i) => {
-        soundMap[button.textContent + "click"] = miscSounds[i%miscSounds.length];
-        soundMap[button.textContent + "mouseover"] = hoverSounds[i%hoverSounds.length];
+        soundMap[button.textContent + "click"] = miscSounds[i % miscSounds.length];
+        soundMap[button.textContent + "mouseover"] = hoverSounds[i % hoverSounds.length];
     });
 }
 
-function playSound(soundKey){
+function playSound(soundKey) {
     soundMap[soundKey].currentTime = 0;
     soundMap[soundKey].play();
 }
@@ -51,7 +58,7 @@ function flashElements(elements) {
     elements.forEach((element) => element.classList.toggle("pre-clicked"));
 }
 
-function makeNewDigitElement(text){
+function makeNewDigitElement(text) {
     const newDigit = document.createElement('div');
     newDigit.textContent = text;
 
@@ -59,42 +66,42 @@ function makeNewDigitElement(text){
     return newDigit;
 }
 
-function setEmptyAndShrink(element){
+function setEmptyAndShrink(element) {
     element.replaceChildren();
     element.style.flex = "0 1 auto";
 }
 
-function setEmptyAndGrow(element){
+function setEmptyAndGrow(element) {
     element.replaceChildren();
     element.style.flex = "1";
 }
 
-function updateDisplay(){
-    let result = document.querySelector(".result");
-    let op1 = document.querySelector(".op1");
-    let op2 = document.querySelector(".op2");
-    let op = document.querySelector(".op");
-    switch(calcModel.state){
-        
+function updateDisplayOp(op) {
+    let newDigit = calcModel[op] === "0." && calcDisplay[op].childElementCount === 0 ?
+        "0." : calcModel[op].charAt(calcModel[op].length - 1);
+    [...newDigit].forEach((digit, i) => {
+        calcDisplay[op].appendChild(makeNewDigitElement(digit));
+        requestAnimationFrame(() => [...calcDisplay[op].children][calcDisplay[op].childElementCount - (i + 1)].classList.toggle("settled-digit"));
+    });
+}
+
+function updateDisplay() {
+
+    switch (calcModel.state) {
+
         case calcState.default:
-            setEmptyAndShrink(result);
-            setEmptyAndShrink(op);
-            setEmptyAndGrow(op1);
-            setEmptyAndShrink(op2);
+            setEmptyAndShrink(calcDisplay.result);
+            setEmptyAndShrink(calcDisplay.op);
+            setEmptyAndGrow(calcDisplay.op1);
+            setEmptyAndShrink(calcDisplay.op2);
             break;
 
         case calcState.enteringOp1:
-            
-            if(result.childElementCount > 0){
+
+            if (calcDisplay.result.childElementCount > 0) {
                 setEmptyAndShrink(result);
             }
-            let newDigit = calcModel.op1 === "0." && op1.childElementCount === 0 ?
-             "0." : calcModel.op1.charAt(calcModel.op1.length -1); 
-            [...newDigit].forEach((digit, i)=>{
-                op1.appendChild(makeNewDigitElement(digit));
-                requestAnimationFrame(() => [...op1.children][op1.childElementCount - (i + 1)].classList.toggle("settled-digit"));
-            });
-            
+            updateDisplayOp("op1");
     }
 
 
@@ -103,10 +110,10 @@ function updateDisplay(){
 }
 
 //returns new operand based on current operand and input
-function updateOperand(currentOp, input){
-    if(input === "." &&
-    calcModel[currentOp].includes(".")){
-            return;
+function updateOperand(currentOp, input) {
+    if (input === "." &&
+        calcModel[currentOp].includes(".")) {
+        return;
     }
     calcModel[currentOp] += input;
     updateDisplay();
@@ -120,8 +127,8 @@ function handleNumClick(numButton) {
         let newInput = numButton.id === 'decimal' ? "0." : numButton.textContent;
         updateOperand("op1", newInput);
     }
-    else if(calcModel.state === calcState.enteringOp1 ||
-        calcModel.state === calcState.enteringOp2 ){
+    else if (calcModel.state === calcState.enteringOp1 ||
+        calcModel.state === calcState.enteringOp2) {
         let op = calcModel.state === calcState.enteringOp1 ? "op1" : "op2";
         updateOperand(op, numButton.textContent);
     }
@@ -169,7 +176,7 @@ function endTransition(e) {
     }
 }
 
-function handleMouseOver(e){
+function handleMouseOver(e) {
     playSound(this.textContent + "mouseover");
 }
 
