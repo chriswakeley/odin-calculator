@@ -127,10 +127,15 @@ button:hover:not(.clicked) {
     transition: 0.1s !important;
 }
 
-.to-clear {
-    color: rgba(0, 0, 0, 0) !important;
-    transition: 0.5s !important;
+.pre-clear {
 }
+
+.to-clear {
+    flex: 0 1 auto !important; 
+    color: rgba(0, 0, 0, 0) !important;
+    transition: 0.01s !important;
+}
+
 
 
 #footer p{

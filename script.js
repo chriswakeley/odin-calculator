@@ -7,17 +7,17 @@ const calcState = {
     error: 5,
 }
 
-function addOperator() {
-
+function addOperator(op1, op2) {
+    return `${op1 + op2}`;
 }
-function subtractOperator() {
-
+function subtractOperator(op1, op2) {
+    return `${op1 - op2}`;
 }
-function multiplyOperator() {
-
+function multiplyOperator(op1, op2) {
+    return `${op1 * op2}`;
 }
-function divideOperator() {
-
+function divideOperator(op1, op2) {
+    return `${op1 / op2}`;
 }
 
 const operators = {
@@ -134,14 +134,12 @@ function addDisplayElements(displayProperty, manualEntry) {
 }
 
 function clearDisplayElements(elements) {
-    elementsCopy = elements.cloneNode(true);
+    let elementsCopy = elements.cloneNode(true);
     elementsCopy.addEventListener('transitionend', endTransition);
-    elementsCopy.classList.toggle("to-clear");
+    elementsCopy.classList.toggle("pre-clear");
     elementsCopy.style.color = "black";
-    elementsCopy.forEach((element) => {
-        element.addEventListener('transitionend', endTransition);
-        element.classList.toggle("to-clear");
-    });
+    elements.after(elementsCopy);
+    requestAnimationFrame(() => document.querySelectorAll(".pre-clear").forEach((toClear)=>toClear.classList.add("to-clear")));
 }
 
 function updateDisplay() {
@@ -159,7 +157,8 @@ function updateDisplay() {
 
             if (calcDisplay.result.childElementCount > 0) {
                 clearDisplayElements(calcDisplay.result);
-                setEmptyAndShrink(result);
+                setEmptyAndShrink(calcDisplay.result);
+                setGrow(calcDisplay.op1);
             }
             addDisplayElements("op1");
             break;
@@ -170,7 +169,7 @@ function updateDisplay() {
                 addDisplayElements("op1", calcModel.result);
                 addDisplayElements("operator");
                 setEmptyAndGrow(calcDisplay.op2);
-                setEmptyAndShrink(result);
+                setEmptyAndShrink(calcDisplay.result);
             }
             else{
                 setShrink(calcDisplay.op1);
@@ -182,11 +181,18 @@ function updateDisplay() {
             addDisplayElements("op2");
             break;
         }
+
+        case calcState.displayingResult:
+            clearDisplayElements(calcDisplay.op1);
+            clearDisplayElements(calcDisplay.op2);
+            clearDisplayElements(calcDisplay.operator);
+            setEmptyAndShrink(calcDisplay.op1);
+            setEmptyAndShrink(calcDisplay.op2);
+            setEmptyAndShrink(calcDisplay.operator);
+            setGrow(calcDisplay.result);
+            addDisplayElements("result");
+            break;
     }
-
-
-    /*let display = document.querySelector(".display-text");
-    display.textContent += "\n" + input.split("").join("\n");*/
 }
 
 //returns new operand based on current operand and input
@@ -219,8 +225,6 @@ function handleNumClick(numButton) {
             updateDisplay();
             break;
     }
-
-
 }
 
 function handleOpClick(opButton) {
@@ -247,6 +251,16 @@ function handleMiscClick(miscButton) {
     if (miscButton.id === "operate") {
         flashElements(flashOnEquals);
         flashElements(flashOnOp);
+        switch(calcModel.state){
+            case calcState.enteringOp2:
+                calcModel.result = operators[calcModel.operator](+(calcModel.op1), +(calcModel.op2));
+                calcModel.op1 = "";
+                calcModel.operator ="";
+                calcModel.op2 = "";
+                calcModel.state = calcState.displayingResult;
+                updateDisplay();
+                break;
+        }
     }
 }
 
