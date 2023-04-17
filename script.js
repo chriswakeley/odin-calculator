@@ -7,19 +7,39 @@ const calcState = {
     error: 5,
 }
 
+function addOperator() {
+
+}
+function subtractOperator() {
+
+}
+function multiplyOperator() {
+
+}
+function divideOperator() {
+
+}
+
+const operators = {
+    "+": addOperator,
+    "-": subtractOperator,
+    "*": multiplyOperator,
+    "/": divideOperator,
+}
 const calcModel = {
     op1: "",
     op2: "",
-    operator: null,
+    operator: "",
     result: "",
     state: calcState.default,
+
 }
 
 const calcDisplay = {
     result: document.querySelector(".result"),
     op1: document.querySelector(".op1"),
     op2: document.querySelector(".op2"),
-    op: document.querySelector(".op"),
+    operator: document.querySelector(".op"),
 }
 
 //All elements that should flash when "=" is clicked
@@ -76,12 +96,51 @@ function setEmptyAndGrow(element) {
     element.style.flex = "1";
 }
 
-function updateDisplayOp(op) {
-    let newDigit = calcModel[op] === "0." && calcDisplay[op].childElementCount === 0 ?
-        "0." : calcModel[op].charAt(calcModel[op].length - 1);
-    [...newDigit].forEach((digit, i) => {
-        calcDisplay[op].appendChild(makeNewDigitElement(digit));
-        requestAnimationFrame(() => [...calcDisplay[op].children][calcDisplay[op].childElementCount - (i + 1)].classList.toggle("settled-digit"));
+function setGrow(element){
+    element.style.flex = "1";
+}
+
+function setShrink(element){
+    element.style.flex = "0 1 auto";
+}
+
+function addDisplayElements(displayProperty, manualEntry) {
+    let newChars;
+    if (arguments.length < 2) {
+        switch (displayProperty) {
+            case "op1":
+            case "op2":
+                newChars = calcModel[displayProperty] === "0." && calcDisplay[displayProperty].childElementCount === 0 ?
+                    "0." : calcModel[displayProperty].charAt(calcModel[displayProperty].length - 1);
+
+                break;
+
+            case "operator":
+                newChars = calcModel.operator;
+                break;
+
+            case "result":
+                newChars = calcModel.result;
+        }
+    }
+    else {
+        newChars = manualDigits;
+    }
+
+    [...newChars].forEach((digit, i) => {
+        calcDisplay[displayProperty].appendChild(makeNewDigitElement(digit));
+        requestAnimationFrame(() => [...calcDisplay[displayProperty].children][calcDisplay[displayProperty].childElementCount - (i + 1)].classList.toggle("settled-digit"));
+    });
+}
+
+function clearDisplayElements(elements) {
+    elementsCopy = elements.cloneNode(true);
+    elementsCopy.addEventListener('transitionend', endTransition);
+    elementsCopy.classList.toggle("to-clear");
+    elementsCopy.style.color = "black";
+    elementsCopy.forEach((element) => {
+        element.addEventListener('transitionend', endTransition);
+        element.classList.toggle("to-clear");
     });
 }
 
@@ -91,7 +150,7 @@ function updateDisplay() {
 
         case calcState.default:
             setEmptyAndShrink(calcDisplay.result);
-            setEmptyAndShrink(calcDisplay.op);
+            setEmptyAndShrink(calcDisplay.operator);
             setEmptyAndGrow(calcDisplay.op1);
             setEmptyAndShrink(calcDisplay.op2);
             break;
@@ -99,9 +158,30 @@ function updateDisplay() {
         case calcState.enteringOp1:
 
             if (calcDisplay.result.childElementCount > 0) {
+                clearDisplayElements(calcDisplay.result);
                 setEmptyAndShrink(result);
             }
-            updateDisplayOp("op1");
+            addDisplayElements("op1");
+            break;
+
+        case calcState.operandEntered:
+            if (calcDisplay.result.childElementCount > 0) {
+                clearDisplayElements(calcDisplay.result);
+                addDisplayElements("op1", calcModel.result);
+                addDisplayElements("operator");
+                setEmptyAndGrow(calcDisplay.op2);
+                setEmptyAndShrink(result);
+            }
+            else{
+                setShrink(calcDisplay.op1);
+                addDisplayElements("operator");
+                setGrow(calcDisplay.op2);
+            }
+
+        case calcState.enteringOp2:{
+            addDisplayElements("op2");
+            break;
+        }
     }
 
 
@@ -116,26 +196,51 @@ function updateOperand(currentOp, input) {
         return;
     }
     calcModel[currentOp] += input;
-    updateDisplay();
 }
 
 function handleNumClick(numButton) {
-    if (calcModel.state === calcState.default ||
-        calcModel.state === calcState.error) {
+    let newInput;
+    switch (calcModel.state) {
+        case calcState.default:
+        case calcState.error:
+        case calcState.displayingResult:
+        case calcState.enteringOp1:
+            calcModel.state = calcState.enteringOp1;
+            newInput = numButton.id === 'decimal' ? "0." : numButton.textContent;
+            updateOperand("op1", newInput);
+            updateDisplay();
+            break;
 
-        calcModel.state = calcState.enteringOp1;
-        let newInput = numButton.id === 'decimal' ? "0." : numButton.textContent;
-        updateOperand("op1", newInput);
+        case calcState.operandEntered:
+        case calcState.enteringOp2:
+            calcModel.state = calcState.enteringOp2;
+            newInput = numButton.id === 'decimal' ? "0." : numButton.textContent;
+            updateOperand("op2", newInput);
+            updateDisplay();
+            break;
     }
-    else if (calcModel.state === calcState.enteringOp1 ||
-        calcModel.state === calcState.enteringOp2) {
-        let op = calcModel.state === calcState.enteringOp1 ? "op1" : "op2";
-        updateOperand(op, numButton.textContent);
-    }
+
+
 }
 
 function handleOpClick(opButton) {
     flashElements(flashOnOp);
+    switch (calcModel.state) {
+        case calcState.enteringOp1:
+            calcModel.state = calcState.operandEntered;
+            calcModel.operator = opButton.textContent;
+            updateDisplay();
+            break;
+
+        case calcState.displayingResult:
+            calcModel.op1 = calcModel.result;
+            calcModel.result = "";
+            calcModel.operator = opButton.textContent;
+            calcModel.state = calcState.operandEntered;
+            updateDisplay();
+            break;
+    }
+
 }
 
 function handleMiscClick(miscButton) {
@@ -173,6 +278,13 @@ function endTransition(e) {
     //handle buttons and flashable elements when in 'clicked' state
     if (this.classList.contains('clicked')) {
         this.classList.toggle('clicked');
+        return;
+    }
+
+    //handle elements to be cleared
+    if(this.classList.contains('to-clear')){
+        this.remove();
+        return;
     }
 }
 
