@@ -137,8 +137,11 @@ function clearDisplayElements(elements) {
     let elementsCopy = elements.cloneNode(true);
     elementsCopy.addEventListener('transitionend', endTransition);
     elementsCopy.classList.toggle("pre-clear");
-    elementsCopy.style.color = "black";
-    elements.after(elementsCopy);
+    let pos = elements.getBoundingClientRect();
+    elementsCopy.style.position = "fixed";
+    elementsCopy.style.left = `${pos.left}px`;
+    elementsCopy.style.top = `${pos.top}px`;
+    document.querySelector("body").appendChild(elementsCopy);
     requestAnimationFrame(() => document.querySelectorAll(".pre-clear").forEach((toClear)=>toClear.classList.add("to-clear")));
 }
 

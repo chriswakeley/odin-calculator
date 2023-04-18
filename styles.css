@@ -69,17 +69,19 @@ body {
 
 #calc-background> :not(.border)>* {}
 
-.display {
+#calc-display {
     border-style: solid;
     border-color: rgba(0, 0, 0, 0);
     border-width: 2px;
     align-items: center;
+    gap: 0px !important;
 }
 
 .op1, .op2, .op, .result{
     display:flex;
     flex-direction: column;
     transition: flex 0.5s;
+    font-size: 2.4em;
 }
 
 .new-digit {
@@ -88,6 +90,7 @@ body {
     flex-direction: column;
     justify-content: end;
     transition: flex 0.5s;
+    padding-bottom: 14px;
 }
 
 .settled-digit{
@@ -128,12 +131,13 @@ button:hover:not(.clicked) {
 }
 
 .pre-clear {
+    color: rgba(207, 255, 33, 0.918) !important;
 }
 
 .to-clear {
-    flex: 0 1 auto !important; 
-    color: rgba(0, 0, 0, 0) !important;
-    transition: 0.01s !important;
+    color: rgba(140, 0, 255, 0)!important;
+    transform: translateX(100px);
+    transition: 2.0s !important;
 }
 
 
