@@ -132,6 +132,7 @@ button:hover:not(.clicked) {
 
 .pre-clear {
     color: rgba(207, 255, 33, 0.918) !important;
+    font-size: 2.4em;
 }
 
 .to-clear {

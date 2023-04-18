@@ -157,6 +157,10 @@ function updateDisplay() {
     switch (calcModel.state) {
 
         case calcState.default:
+            clearDisplayElements(calcDisplay.result);
+            clearDisplayElements(calcDisplay.operator);
+            clearDisplayElements(calcDisplay.op1);
+            clearDisplayElements(calcDisplay.op2);
             setEmptyAndShrink(calcDisplay.result);
             setEmptyAndShrink(calcDisplay.operator);
             setEmptyAndGrow(calcDisplay.op1);
@@ -353,6 +357,14 @@ function handleMiscClick(miscButton) {
                 updateDisplay();
                 break;
         }
+    }
+    if (miscButton.id === "clear") {
+        calcModel.op1 = "";
+        calcModel.op2 = "";
+        calcModel.operator = "";
+        calcModel.result = "";
+        calcModel.state = calcState.default;
+        updateDisplay();
     }
 }
 
