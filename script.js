@@ -136,9 +136,16 @@ function deleteOpDigits(op) {
     [...calcDisplay[op].children].forEach((child, i) => {
         if(i > (calcModel[op].length - 1)){
             clearDisplayElements(child);
+        }
+        
+    });
+    [...calcDisplay[op].children].forEach((child, i) => {
+        if(i > (calcModel[op].length - 1)){
             child.remove();
         }
+        
     });
+    
 }
 
 function clearDisplayElements(elements) {
