@@ -24,7 +24,7 @@ const operators = {
     "+": addOperator,
     "-": subtractOperator,
     "*": multiplyOperator,
-    "/": divideOperator,
+    "÷": divideOperator,
 }
 const calcModel = {
     op1: "",
@@ -32,7 +32,6 @@ const calcModel = {
     operator: "",
     result: "",
     state: calcState.default,
-
 }
 
 const calcDisplay = {
@@ -96,11 +95,11 @@ function setEmptyAndGrow(element) {
     element.style.flex = "1";
 }
 
-function setGrow(element){
+function setGrow(element) {
     element.style.flex = "1";
 }
 
-function setShrink(element){
+function setShrink(element) {
     element.style.flex = "0 1 auto";
 }
 
@@ -124,12 +123,21 @@ function addDisplayElements(displayProperty, manualEntry) {
         }
     }
     else {
-        newChars = manualDigits;
+        newChars = manualEntry;
     }
 
     [...newChars].forEach((digit, i) => {
         calcDisplay[displayProperty].appendChild(makeNewDigitElement(digit));
         requestAnimationFrame(() => [...calcDisplay[displayProperty].children][calcDisplay[displayProperty].childElementCount - (i + 1)].classList.toggle("settled-digit"));
+    });
+}
+
+function deleteOpDigits(op) {
+    [...calcDisplay[op].children].forEach((child, i) => {
+        if(i > (calcModel[op].length - 1)){
+            clearDisplayElements(child);
+            child.remove();
+        }
     });
 }
 
@@ -142,11 +150,10 @@ function clearDisplayElements(elements) {
     elementsCopy.style.left = `${pos.left}px`;
     elementsCopy.style.top = `${pos.top}px`;
     document.querySelector("body").appendChild(elementsCopy);
-    requestAnimationFrame(() => document.querySelectorAll(".pre-clear").forEach((toClear)=>toClear.classList.add("to-clear")));
+    requestAnimationFrame(() => document.querySelectorAll(".pre-clear").forEach((toClear) => toClear.classList.add("to-clear")));
 }
 
 function updateDisplay() {
-
     switch (calcModel.state) {
 
         case calcState.default:
@@ -157,31 +164,53 @@ function updateDisplay() {
             break;
 
         case calcState.enteringOp1:
-
-            if (calcDisplay.result.childElementCount > 0) {
-                clearDisplayElements(calcDisplay.result);
-                setEmptyAndShrink(calcDisplay.result);
-                setGrow(calcDisplay.op1);
+            if (calcDisplay.op1.childElementCount > calcModel.op1.length) {
+                deleteOpDigits("op1");
             }
-            addDisplayElements("op1");
+            else {
+                if (calcDisplay.result.childElementCount > 0) {
+                    clearDisplayElements(calcDisplay.result);
+                    setEmptyAndShrink(calcDisplay.result);
+                    setGrow(calcDisplay.op1);
+                }
+
+                addDisplayElements("op1");
+            }
             break;
+
 
         case calcState.operandEntered:
             if (calcDisplay.result.childElementCount > 0) {
                 clearDisplayElements(calcDisplay.result);
-                addDisplayElements("op1", calcModel.result);
+                addDisplayElements("op1", calcModel.op1);
                 addDisplayElements("operator");
                 setEmptyAndGrow(calcDisplay.op2);
                 setEmptyAndShrink(calcDisplay.result);
             }
-            else{
+            else if (calcDisplay.op2.childElementCount > 0) {
+                clearDisplayElements(calcDisplay.operator);
+                clearDisplayElements(calcDisplay.op1);
+                clearDisplayElements(calcDisplay.op2);
+                setEmptyAndShrink(calcDisplay.op1);
+                setEmptyAndShrink(calcDisplay.operator);
+                setEmptyAndGrow(calcDisplay.op2);
+                addDisplayElements("op1", calcModel.op1);
+                addDisplayElements("operator");
+            }
+            else {
                 setShrink(calcDisplay.op1);
                 addDisplayElements("operator");
                 setGrow(calcDisplay.op2);
             }
+            break;
 
-        case calcState.enteringOp2:{
-            addDisplayElements("op2");
+        case calcState.enteringOp2: {
+            if (calcDisplay.op2.childElementCount > calcModel.op2.length) {
+                deleteOpDigits("op2");
+            }
+            else {
+                addDisplayElements("op2");
+            }
             break;
         }
 
@@ -200,11 +229,27 @@ function updateDisplay() {
 
 //returns new operand based on current operand and input
 function updateOperand(currentOp, input) {
-    if (input === "." &&
-        calcModel[currentOp].includes(".")) {
-        return;
+    if (input === "backspace") {
+        if (calcModel[currentOp].length === 0) {
+            return;
+        }
+        else if (calcModel[currentOp].length === 1) {
+            calcModel[currentOp] = "";
+        }
+        else {
+            calcModel[currentOp] = calcModel[currentOp].substring(0, calcModel[currentOp].length - 1);
+            if (calcModel[currentOp] === "0") {
+                calcModel[currentOp] = "";
+            }
+        }
     }
-    calcModel[currentOp] += input;
+    else {
+        if (input === "." &&
+            calcModel[currentOp].includes(".")) {
+            return;
+        }
+        calcModel[currentOp] += input;
+    }
 }
 
 function handleNumClick(numButton) {
@@ -215,7 +260,17 @@ function handleNumClick(numButton) {
         case calcState.displayingResult:
         case calcState.enteringOp1:
             calcModel.state = calcState.enteringOp1;
-            newInput = numButton.id === 'decimal' ? "0." : numButton.textContent;
+            if(numButton.id === 'decimal'){
+                if(calcModel.op1 === ""){
+                    newInput = "0.";
+                }
+                else{
+                    newInput = ".";
+                }
+            }
+            else{
+                newInput = numButton.textContent;
+            }
             updateOperand("op1", newInput);
             updateDisplay();
             break;
@@ -223,7 +278,17 @@ function handleNumClick(numButton) {
         case calcState.operandEntered:
         case calcState.enteringOp2:
             calcModel.state = calcState.enteringOp2;
-            newInput = numButton.id === 'decimal' ? "0." : numButton.textContent;
+            if(numButton.id === 'decimal'){
+                if(calcModel.op2 === ""){
+                    newInput = "0.";
+                }
+                else{
+                    newInput = ".";
+                }
+            }
+            else{
+                newInput = numButton.textContent;
+            }
             updateOperand("op2", newInput);
             updateDisplay();
             break;
@@ -246,21 +311,40 @@ function handleOpClick(opButton) {
             calcModel.state = calcState.operandEntered;
             updateDisplay();
             break;
-    }
 
+        case calcState.enteringOp2:
+            calcModel.op1 = operators[calcModel.operator](+(calcModel.op1), +(calcModel.op2));
+            calcModel.op2 = ""
+            calcModel.operator = opButton.textContent;
+            calcModel.state = calcState.operandEntered;
+            updateDisplay();
+            break;
+    }
 }
 
 function handleMiscClick(miscButton) {
     if (miscButton.id === "operate") {
         flashElements(flashOnEquals);
         flashElements(flashOnOp);
-        switch(calcModel.state){
+        switch (calcModel.state) {
             case calcState.enteringOp2:
                 calcModel.result = operators[calcModel.operator](+(calcModel.op1), +(calcModel.op2));
                 calcModel.op1 = "";
-                calcModel.operator ="";
+                calcModel.operator = "";
                 calcModel.op2 = "";
                 calcModel.state = calcState.displayingResult;
+                updateDisplay();
+                break;
+        }
+    }
+    if (miscButton.id === "backspace") {
+        switch (calcModel.state) {
+            case calcState.enteringOp1:
+                updateOperand("op1", "backspace");
+                updateDisplay();
+                break;
+            case calcState.enteringOp2:
+                updateOperand("op2", "backspace");
                 updateDisplay();
                 break;
         }
@@ -299,7 +383,7 @@ function endTransition(e) {
     }
 
     //handle elements to be cleared
-    if(this.classList.contains('to-clear')){
+    if (this.classList.contains('to-clear')) {
         this.remove();
         return;
     }
