@@ -227,28 +227,31 @@ function updateDisplay() {
     }
 }
 
-//returns new operand based on current operand and input
+//returns true if changed
 function updateOperand(currentOp, input) {
     if (input === "backspace") {
         if (calcModel[currentOp].length === 0) {
-            return;
+            return false;
         }
         else if (calcModel[currentOp].length === 1) {
             calcModel[currentOp] = "";
+            return true;
         }
         else {
             calcModel[currentOp] = calcModel[currentOp].substring(0, calcModel[currentOp].length - 1);
             if (calcModel[currentOp] === "0") {
                 calcModel[currentOp] = "";
             }
+            return true;
         }
     }
     else {
         if (input === "." &&
             calcModel[currentOp].includes(".")) {
-            return;
+            return false;
         }
         calcModel[currentOp] += input;
+        return true;
     }
 }
 
@@ -271,8 +274,9 @@ function handleNumClick(numButton) {
             else{
                 newInput = numButton.textContent;
             }
-            updateOperand("op1", newInput);
-            updateDisplay();
+            if(updateOperand("op1", newInput)){
+                updateDisplay();
+            }            
             break;
 
         case calcState.operandEntered:
@@ -289,8 +293,9 @@ function handleNumClick(numButton) {
             else{
                 newInput = numButton.textContent;
             }
-            updateOperand("op2", newInput);
-            updateDisplay();
+            if(updateOperand("op2", newInput)){
+                updateDisplay();
+            }
             break;
     }
 }
