@@ -201,11 +201,17 @@ function updateDisplay() {
 
         case calcState.operandEntered:
             if (calcDisplay.result.childElementCount > 0) {
-                clearDisplayElements(calcDisplay.result);
-                addDisplayElements("op1", calcModel.op1);
+                //clearDisplayElements(calcDisplay.result);
+                calcDisplay.op1.remove();
+                calcDisplay.op1 = calcDisplay.result.cloneNode(true);
+                calcDisplay.op1.classList.remove("result");
+                calcDisplay.op1.classList.add("op1");
+                calcDisplay.result.before(calcDisplay.op1);
+                //addDisplayElements("op1", calcModel.op1);
                 addDisplayElements("operator");
                 setEmptyAndGrow(calcDisplay.op2);
                 setEmptyAndShrink(calcDisplay.result);
+                setShrink(calcDisplay.op1);
             }
             else if (calcDisplay.op2.childElementCount > 0) {
                 clearDisplayElements(calcDisplay.operator);
