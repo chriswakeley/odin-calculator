@@ -8,16 +8,16 @@ const calcState = {
 }
 
 function addOperator(op1, op2) {
-    return `${op1 + op2}`;
+    return `${Math.round(((op1 + op2) + Number.EPSILON) * 1000000) / 1000000}`;
 }
 function subtractOperator(op1, op2) {
-    return `${op1 - op2}`;
+    return `${Math.round(((op1 - op2) + Number.EPSILON) * 1000000) / 1000000}`;
 }
 function multiplyOperator(op1, op2) {
-    return `${op1 * op2}`;
+    return `${Math.round(((op1 * op2) + Number.EPSILON) * 1000000) / 1000000}`;
 }
 function divideOperator(op1, op2) {
-    return `${op1 / op2}`;
+    return `${Math.round(((op1 / op2) + Number.EPSILON) * 1000000) / 1000000}`;
 }
 
 const operators = {
@@ -201,13 +201,11 @@ function updateDisplay() {
 
         case calcState.operandEntered:
             if (calcDisplay.result.childElementCount > 0) {
-                //clearDisplayElements(calcDisplay.result);
                 calcDisplay.op1.remove();
                 calcDisplay.op1 = calcDisplay.result.cloneNode(true);
                 calcDisplay.op1.classList.remove("result");
                 calcDisplay.op1.classList.add("op1");
                 calcDisplay.result.before(calcDisplay.op1);
-                //addDisplayElements("op1", calcModel.op1);
                 addDisplayElements("operator");
                 setEmptyAndGrow(calcDisplay.op2);
                 setEmptyAndShrink(calcDisplay.result);
