@@ -75,6 +75,8 @@ body {
     border-width: 2px;
     align-items: center;
     gap: 0px !important;
+    overflow: hidden;
+    height: 38em;
 }
 
 .op1, .op2, .op, .result{
