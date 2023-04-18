@@ -88,19 +88,28 @@ function makeNewDigitElement(text) {
 function setEmptyAndShrink(element) {
     element.replaceChildren();
     element.style.flex = "0 1 auto";
+    element.classList.add("shrunk");
+    [...element.children].forEach((child)=>child.classList.add("shrunk"));
 }
 
 function setEmptyAndGrow(element) {
     element.replaceChildren();
     element.style.flex = "1";
+    element.classList.remove("shrunk");
+    [...element.children].forEach((child)=>child.classList.remove("shrunk"));
 }
 
 function setGrow(element) {
     element.style.flex = "1";
+    element.classList.remove("shrunk");
+    [...element.children].forEach((child)=>child.classList.remove("shrunk"));
+
 }
 
 function setShrink(element) {
     element.style.flex = "0 1 auto";
+    element.classList.add("shrunk");
+    [...element.children].forEach((child)=>child.classList.add("shrunk"));
 }
 
 function addDisplayElements(displayProperty, manualEntry) {

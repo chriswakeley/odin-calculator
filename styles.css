@@ -143,6 +143,11 @@ button:hover:not(.clicked) {
     transition: 2.0s !important;
 }
 
+.shrunk {
+    font-size: 1.2em !important;
+    padding-bottom: 0px !important;
+}
+
 
 
 #footer p{
