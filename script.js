@@ -1,3 +1,34 @@
+var actx = null;
+var audioSrc = "samples/full-loop.mp3";
+var audioData;
+var srcNode;
+function makeNewAudioContext(){
+    if(actx === null){
+        actx = new (AudioContext || webkitAudioContext)(),
+    audioSrc = "samples/full-loop.mp3",
+    audioData, srcNode; 
+fetch(audioSrc, { mode: "cors" }).then(function (resp) { return resp.arrayBuffer() }).then(decode);
+    }
+}
+
+
+
+// Decode the audio file, then start the show
+function decode(buffer) {
+    actx.decodeAudioData(buffer, playLoop);
+}
+
+// Sets up a new source node as needed as stopping will render current invalid
+function playLoop(abuffer) {
+    if (!audioData) audioData = abuffer;  // create a reference for control buttons
+    srcNode = actx.createBufferSource();  // create audio source
+    srcNode.buffer = abuffer;             // use decoded buffer
+    srcNode.connect(actx.destination);    // create output
+    srcNode.loop = true;                  // takes care of perfect looping
+    srcNode.start();                      // play...
+}
+
+
 const calcState = {
     default: 0,
     enteringOp1: 1,
@@ -17,6 +48,9 @@ function multiplyOperator(op1, op2) {
     return `${Math.round(((op1 * op2) + Number.EPSILON) * 1000000) / 1000000}`;
 }
 function divideOperator(op1, op2) {
+    if (+op2 === 0) {
+        return "error";
+    }
     return `${Math.round(((op1 / op2) + Number.EPSILON) * 1000000) / 1000000}`;
 }
 
@@ -74,7 +108,15 @@ function playSound(soundKey) {
 
 // elements is a nodelist of elements to flash
 function flashElements(elements) {
-    elements.forEach((element) => element.classList.toggle("pre-clicked"));
+    elements.forEach((element) => {
+        /*
+        if(!(element.classList.contains("pre-clicked")) || !(element.classList.contains("clicked"))){
+            element.classList.add("pre-clicked");
+        }
+        */
+        element.classList.add("pre-clicked");
+    });
+
 }
 
 function makeNewDigitElement(text) {
@@ -89,27 +131,27 @@ function setEmptyAndShrink(element) {
     element.replaceChildren();
     element.style.flex = "0 1 auto";
     element.classList.add("shrunk");
-    [...element.children].forEach((child)=>child.classList.add("shrunk"));
+    [...element.children].forEach((child) => child.classList.add("shrunk"));
 }
 
 function setEmptyAndGrow(element) {
     element.replaceChildren();
     element.style.flex = "1";
     element.classList.remove("shrunk");
-    [...element.children].forEach((child)=>child.classList.remove("shrunk"));
+    [...element.children].forEach((child) => child.classList.remove("shrunk"));
 }
 
 function setGrow(element) {
     element.style.flex = "1";
     element.classList.remove("shrunk");
-    [...element.children].forEach((child)=>child.classList.remove("shrunk"));
+    [...element.children].forEach((child) => child.classList.remove("shrunk"));
 
 }
 
 function setShrink(element) {
     element.style.flex = "0 1 auto";
     element.classList.add("shrunk");
-    [...element.children].forEach((child)=>child.classList.add("shrunk"));
+    [...element.children].forEach((child) => child.classList.add("shrunk"));
 }
 
 function addDisplayElements(displayProperty, manualEntry) {
@@ -143,18 +185,18 @@ function addDisplayElements(displayProperty, manualEntry) {
 
 function deleteOpDigits(op) {
     [...calcDisplay[op].children].forEach((child, i) => {
-        if(i > (calcModel[op].length - 1)){
+        if (i > (calcModel[op].length - 1)) {
             clearDisplayElements(child);
         }
-        
+
     });
     [...calcDisplay[op].children].forEach((child, i) => {
-        if(i > (calcModel[op].length - 1)){
+        if (i > (calcModel[op].length - 1)) {
             child.remove();
         }
-        
+
     });
-    
+
 }
 
 function clearDisplayElements(elements) {
@@ -248,6 +290,17 @@ function updateDisplay() {
             setGrow(calcDisplay.result);
             addDisplayElements("result");
             break;
+
+        case calcState.error:
+            clearDisplayElements(calcDisplay.result);
+            clearDisplayElements(calcDisplay.operator);
+            clearDisplayElements(calcDisplay.op1);
+            clearDisplayElements(calcDisplay.op2);
+            setEmptyAndShrink(calcDisplay.result);
+            setEmptyAndShrink(calcDisplay.operator);
+            setEmptyAndGrow(calcDisplay.op1);
+            setEmptyAndShrink(calcDisplay.op2);
+            break;
     }
 }
 
@@ -283,41 +336,40 @@ function handleNumClick(numButton) {
     let newInput;
     switch (calcModel.state) {
         case calcState.default:
-        case calcState.error:
         case calcState.displayingResult:
         case calcState.enteringOp1:
             calcModel.state = calcState.enteringOp1;
-            if(numButton.id === 'decimal'){
-                if(calcModel.op1 === ""){
+            if (numButton.id === 'decimal') {
+                if (calcModel.op1 === "") {
                     newInput = "0.";
                 }
-                else{
+                else {
                     newInput = ".";
                 }
             }
-            else{
+            else {
                 newInput = numButton.textContent;
             }
-            if(updateOperand("op1", newInput)){
+            if (updateOperand("op1", newInput)) {
                 updateDisplay();
-            }            
+            }
             break;
 
         case calcState.operandEntered:
         case calcState.enteringOp2:
             calcModel.state = calcState.enteringOp2;
-            if(numButton.id === 'decimal'){
-                if(calcModel.op2 === ""){
+            if (numButton.id === 'decimal') {
+                if (calcModel.op2 === "") {
                     newInput = "0.";
                 }
-                else{
+                else {
                     newInput = ".";
                 }
             }
-            else{
+            else {
                 newInput = numButton.textContent;
             }
-            if(updateOperand("op2", newInput)){
+            if (updateOperand("op2", newInput)) {
                 updateDisplay();
             }
             break;
@@ -343,10 +395,24 @@ function handleOpClick(opButton) {
 
         case calcState.enteringOp2:
             calcModel.op1 = operators[calcModel.operator](+(calcModel.op1), +(calcModel.op2));
-            calcModel.op2 = ""
-            calcModel.operator = opButton.textContent;
-            calcModel.state = calcState.operandEntered;
-            updateDisplay();
+            if (calcModel.op1 === "error") {
+                calcModel.op1 = "";
+                calcModel.op2 = "";
+                calcModel.operator = "";
+                calcModel.result = "";
+                calcModel.state = calcState.error;
+                makeNewAudioContext()
+                //playLoop(audioData);
+                flashElements(flashOnEquals);
+                flashElements(flashOnOp);
+                updateDisplay();
+            }
+            else {
+                calcModel.op2 = ""
+                calcModel.operator = opButton.textContent;
+                calcModel.state = calcState.operandEntered;
+                updateDisplay();
+            }
             break;
     }
 }
@@ -358,11 +424,23 @@ function handleMiscClick(miscButton) {
         switch (calcModel.state) {
             case calcState.enteringOp2:
                 calcModel.result = operators[calcModel.operator](+(calcModel.op1), +(calcModel.op2));
-                calcModel.op1 = "";
-                calcModel.operator = "";
-                calcModel.op2 = "";
-                calcModel.state = calcState.displayingResult;
-                updateDisplay();
+                if (calcModel.result === "error") {
+                    calcModel.op1 = "";
+                    calcModel.op2 = "";
+                    calcModel.operator = "";
+                    calcModel.result = "";
+                    calcModel.state = calcState.error;
+                    makeNewAudioContext()
+                    //playLoop(audioData);
+                    updateDisplay();
+                }
+                else {
+                    calcModel.op1 = "";
+                    calcModel.operator = "";
+                    calcModel.op2 = "";
+                    calcModel.state = calcState.displayingResult;
+                    updateDisplay();
+                }
                 break;
         }
     }
@@ -384,6 +462,10 @@ function handleMiscClick(miscButton) {
         calcModel.operator = "";
         calcModel.result = "";
         calcModel.state = calcState.default;
+        if (srcNode) {
+            srcNode.stop();
+            srcNode = null;
+        }
         updateDisplay();
     }
 }
@@ -406,6 +488,7 @@ function endTransition(e) {
     //ignore all but color to limit one call per transition
     if (e.propertyName !== "color") return;
 
+    /*
     //handle flashable elements in pre-clicked state
     if (this.classList.contains('pre-clicked')) {
         this.classList.toggle('pre-clicked');
@@ -416,6 +499,33 @@ function endTransition(e) {
     //handle buttons and flashable elements when in 'clicked' state
     if (this.classList.contains('clicked')) {
         this.classList.toggle('clicked');
+        if (calcModel.state === calcState.error) {
+            flashElements(flashOnEquals);
+        flashElements(flashOnOp);
+        }
+        return;
+    }
+    */
+
+    if (this.classList.contains('pre-clicked') && !(this.classList.contains('clicked'))) {
+        this.classList.remove('pre-clicked');
+        this.classList.add('clicked');
+        return;
+    }
+
+    //handle buttons and flashable elements when in 'clicked' state
+    if (this.classList.contains('clicked')) {
+        this.classList.remove('clicked');
+        this.classList.remove('pre-clicked');
+        if (calcModel.state === calcState.error) {
+            /*requestAnimationFrame(()=>{
+                this.classList.add('pre-clicked');
+            });*/
+            //this.classList.add('pre-clicked');
+            flashElements(flashOnEquals);
+            flashElements(flashOnOp);
+
+        }
         return;
     }
 
