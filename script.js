@@ -137,11 +137,6 @@ function playSound(soundKey) {
 // elements is a nodelist of elements to flash
 function flashElements(elements) {
     elements.forEach((element) => {
-        /*
-        if(!(element.classList.contains("pre-clicked")) || !(element.classList.contains("clicked"))){
-            element.classList.add("pre-clicked");
-        }
-        */
         element.classList.add("pre-clicked");
     });
 
@@ -222,9 +217,7 @@ function deleteOpDigits(op) {
         if (i > (calcModel[op].length - 1)) {
             child.remove();
         }
-
     });
-
 }
 
 function clearDisplayElements(elements) {
@@ -433,6 +426,7 @@ function handleOpClick(opButton) {
                 playLoop(audioData);
                 flashElements(flashOnEquals);
                 flashElements(flashOnOp);
+                flashElements([document.querySelector("#clear")]);
                 updateDisplay();
             }
             else {
@@ -458,6 +452,7 @@ function handleMiscClick(miscButton) {
                     calcModel.operator = "";
                     calcModel.result = "";
                     calcModel.state = calcState.error;
+                    flashElements([document.querySelector("#clear")]);
                     makeNewAudioContext()
                     playLoop(audioData);
                     updateDisplay();
@@ -499,8 +494,6 @@ function handleMiscClick(miscButton) {
 }
 
 function handleClick(e) {
-    //this.classList.add("pre-clicked");
-    //this.classList.toggle("clicked");
     flashElements([this]);
     playSound(this.textContent + "click");
     if (this.classList.contains('num-button')) {
@@ -518,25 +511,6 @@ function endTransition(e) {
     //ignore all but color to limit one call per transition
     if (e.propertyName !== "color") return;
 
-    /*
-    //handle flashable elements in pre-clicked state
-    if (this.classList.contains('pre-clicked')) {
-        this.classList.toggle('pre-clicked');
-        this.classList.toggle('clicked');
-        return;
-    }
-
-    //handle buttons and flashable elements when in 'clicked' state
-    if (this.classList.contains('clicked')) {
-        this.classList.toggle('clicked');
-        if (calcModel.state === calcState.error) {
-            flashElements(flashOnEquals);
-        flashElements(flashOnOp);
-        }
-        return;
-    }
-    */
-
     if (this.classList.contains('pre-clicked') && !(this.classList.contains('clicked'))) {
         this.classList.remove('pre-clicked');
         this.classList.add('clicked');
@@ -548,13 +522,9 @@ function endTransition(e) {
         this.classList.remove('clicked');
         this.classList.remove('pre-clicked');
         if (calcModel.state === calcState.error) {
-            /*requestAnimationFrame(()=>{
-                this.classList.add('pre-clicked');
-            });*/
-            //this.classList.add('pre-clicked');
+            flashElements([document.querySelector("#clear")]);
             flashElements(flashOnEquals);
             flashElements(flashOnOp);
-
         }
         return;
     }
