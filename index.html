@@ -19,32 +19,32 @@
             <div id="calc-container">
                 <div id="calc-background">
                     <div id="numbutton-container">
-                        <button class="num-button">1</button>
-                        <button class="num-button">2</button>
-                        <button class="num-button">3</button>
-                        <button class="num-button">4</button>
-                        <button class="num-button">5</button>
-                        <button class="num-button">6</button>
-                        <button class="num-button">7</button>
-                        <button class="num-button">8</button>
-                        <button class="num-button">9</button>
-                        <button class="num-button">0</button>
-                        <button id="decimal" class="num-button">.</button>
+                        <button class="num-button" data-key="1">1</button>
+                        <button class="num-button" data-key="2">2</button>
+                        <button class="num-button" data-key="3">3</button>
+                        <button class="num-button" data-key="4">4</button>
+                        <button class="num-button" data-key="5">5</button>
+                        <button class="num-button" data-key="6">6</button>
+                        <button class="num-button" data-key="7">7</button>
+                        <button class="num-button" data-key="8">8</button>
+                        <button class="num-button" data-key="9">9</button>
+                        <button class="num-button" data-key="0">0</button>
+                        <button id="decimal" class="num-button" data-key="Decimal .">.</button>
                     </div>
                     <div class="border"></div>
                     <div id="op-container">
-                        <button id="add" class="op-button">+</button>
-                        <button id="subtract" class="op-button">-</button>
-                        <button id="multiply" class="op-button">*</button>
-                        <button id="divide" class="op-button">÷</button>
+                        <button id="add" class="op-button" data-key="Add +">+</button>
+                        <button id="subtract" class="op-button" data-key="Subtract -">-</button>
+                        <button id="multiply" class="op-button" data-key="Multiply *">*</button>
+                        <button id="divide" class="op-button" data-key="Divide /">÷</button>
                     </div>
                     <div class="border"></div>
                     <div id="misc-container">
-                        <button id="backspace" class="misc-button"
+                        <button id="backspace" class="misc-button" data-key="Backspace"
                             style="font-size: 2vh; height: 5vh;">&#9003;</button>
 
-                        <button id="operate" class="misc-button">=</button>
-                        <button id="clear" class="misc-button" style="font-size: 2vh; height: 5vh;">CE</button>
+                        <button id="operate" class="misc-button" data-key="Enter =">=</button>
+                        <button id="clear" class="misc-button" data-key="Escape" style="font-size: 2vh; height: 5vh;">CE</button>
                     </div>
                     <div class="border"></div>
                     <div class="display" id="calc-display">

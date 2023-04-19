@@ -540,6 +540,25 @@ function handleMouseOver(e) {
     playSound(this.textContent + "mouseover");
 }
 
+function handleKeyPress(e) {
+    let keyPressed = document.querySelector(`[data-key~="${e.key}"]`);
+    if (keyPressed !== null) {
+        flashElements([keyPressed]);
+        playSound(keyPressed.textContent + "click");
+        if (keyPressed.classList.contains('num-button')) {
+            handleNumClick(keyPressed);
+        }
+        else if (keyPressed.classList.contains('op-button')) {
+            handleOpClick(keyPressed);
+        }
+        else if (keyPressed.classList.contains('misc-button')) {
+            handleMiscClick(keyPressed);
+        }
+    }
+}
+
+window.addEventListener('keydown', handleKeyPress);
+
 document.querySelectorAll("button").forEach(thisbutton => {
     thisbutton.addEventListener('click', handleClick);
     thisbutton.addEventListener('transitionend', endTransition);
