@@ -23,11 +23,10 @@ body {
 }
 
 #header h1 {
-    font-size: 80px;
+    font-size: 10vmin;
     font-weight: 300;
-    margin: 0.67em 0.67em 0.85em;
-    width: 720px;
-    padding-bottom: 0.3em;
+    margin: 2vmin 2vmin 4vmin;
+    padding-bottom: 1vmin;
     border-radius: 0%;
     border-style: none none double;
 }
@@ -39,7 +38,7 @@ body {
 }
 
 #calc-container {
-    width: 720px;
+    width: 85vmin;
 }
 
 #calc-background {
@@ -51,7 +50,7 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0.5vh;
     margin-left: 7%;
     margin-right: 7%;
 }
@@ -67,23 +66,23 @@ body {
     border-color: rgba(207, 255, 33, 0.651);
 }
 
-#calc-background> :not(.border)>* {}
+#calc-background> :not(.border)>* {
+    font-size: 4.2vh;
+}
 
 #calc-display {
-    border-style: solid;
+    border-style: none solid;
     border-color: rgba(0, 0, 0, 0);
-    border-width: 2px;
     align-items: center;
     gap: 0px !important;
     overflow: hidden;
-    height: 38em;
+    height: 64vh;
 }
 
 .op1, .op2, .op, .result{
     display:flex;
     flex-direction: column;
     transition: flex 0.5s;
-    font-size: 2.4em;
 }
 
 .new-digit {
@@ -92,7 +91,7 @@ body {
     flex-direction: column;
     justify-content: end;
     transition: flex 0.5s;
-    padding-bottom: 14px;
+    padding-bottom: 0.9vh;
 }
 
 .settled-digit{
@@ -102,15 +101,14 @@ body {
 button {
     background-color: rgba(0, 0, 0, 0);
     border-style: solid none;
-    border-width: 2px;
+    border-width: 0.1vh;
     border-color: rgba(0, 0, 0, 0);
-    font-size: 2.4em;
     font-family: 'Cormorant Unicase', serif;
     cursor: pointer;
     transition: 0.4s;
 }
 
-button:hover:not(.clicked) {
+body.hasHover button:hover:not(.clicked) {
     border-color: rgba(207, 255, 33, 0.918);
     color: rgba(207, 255, 33, 0.918);
     border-radius: 25%;
@@ -134,17 +132,17 @@ button:hover:not(.clicked) {
 
 .pre-clear {
     color: rgba(207, 255, 33, 0.918) !important;
-    font-size: 2.4em;
+    font-size: 4.2vh;    
 }
 
 .to-clear {
     color: rgba(140, 0, 255, 0)!important;
-    transform: translateX(100px);
+    transform: translateX(10vw);
     transition: 2.0s !important;
 }
 
 .shrunk {
-    font-size: 1.2em !important;
+    font-size: 2.4vh !important;
     padding-bottom: 0px !important;
 }
 
@@ -153,8 +151,9 @@ button:hover:not(.clicked) {
 #footer p{
     align-self: center;
     margin:0;
-    height: 3em;
+    font-size: 2vmin;
     display:flex;
     align-items: center;
     justify-content: center;
+    padding: 1vmin;
 }

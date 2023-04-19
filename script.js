@@ -1,13 +1,41 @@
+//Disable hover effects when using touch
+function watchForHover() {
+    // lastTouchTime is used for ignoring emulated mousemove events
+    let lastTouchTime = 0
+
+    function enableHover() {
+        if (new Date() - lastTouchTime < 500) return
+        document.body.classList.add('hasHover')
+    }
+
+    function disableHover() {
+        document.body.classList.remove('hasHover')
+    }
+
+    function updateLastTouchTime() {
+        lastTouchTime = new Date()
+    }
+
+    document.addEventListener('touchstart', updateLastTouchTime, true)
+    document.addEventListener('touchstart', disableHover, true)
+    document.addEventListener('mousemove', enableHover, true)
+
+    enableHover()
+}
+
+watchForHover()
+
+//Web audio api for music mode
 var actx = null;
 var audioSrc = "samples/full-loop.mp3";
 var audioData;
 var srcNode;
-function makeNewAudioContext(){
-    if(actx === null){
+function makeNewAudioContext() {
+    if (actx === null) {
         actx = new (AudioContext || webkitAudioContext)(),
-    audioSrc = "samples/full-loop.mp3",
-    audioData, srcNode; 
-fetch(audioSrc, { mode: "cors" }).then(function (resp) { return resp.arrayBuffer() }).then(decode);
+            audioSrc = "samples/full-loop.mp3",
+            audioData, srcNode;
+        fetch(audioSrc, { mode: "cors" }).then(function (resp) { return resp.arrayBuffer() }).then(decode);
     }
 }
 
@@ -402,7 +430,7 @@ function handleOpClick(opButton) {
                 calcModel.result = "";
                 calcModel.state = calcState.error;
                 makeNewAudioContext()
-                //playLoop(audioData);
+                playLoop(audioData);
                 flashElements(flashOnEquals);
                 flashElements(flashOnOp);
                 updateDisplay();
@@ -431,7 +459,7 @@ function handleMiscClick(miscButton) {
                     calcModel.result = "";
                     calcModel.state = calcState.error;
                     makeNewAudioContext()
-                    //playLoop(audioData);
+                    playLoop(audioData);
                     updateDisplay();
                 }
                 else {
@@ -471,7 +499,8 @@ function handleMiscClick(miscButton) {
 }
 
 function handleClick(e) {
-    this.classList.toggle("clicked");
+    //this.classList.toggle("clicked");
+    flashElements([this]);
     playSound(this.textContent + "click");
     if (this.classList.contains('num-button')) {
         handleNumClick(this);
