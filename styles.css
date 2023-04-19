@@ -151,7 +151,7 @@ body.hasHover button:hover:not(.clicked) {
 #footer p{
     align-self: center;
     margin:0;
-    font-size: 2vmin;
+    font-size: 2vh;
     display:flex;
     align-items: center;
     justify-content: center;
