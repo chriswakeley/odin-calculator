@@ -499,6 +499,7 @@ function handleMiscClick(miscButton) {
 }
 
 function handleClick(e) {
+    //this.classList.add("pre-clicked");
     //this.classList.toggle("clicked");
     flashElements([this]);
     playSound(this.textContent + "click");

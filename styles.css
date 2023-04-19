@@ -117,7 +117,7 @@ body.hasHover button:hover:not(.clicked) {
 
 .pre-clicked:not(.clicked) {
     border-color: rgba(207, 255, 33, 0.918) !important;
-    color: rgba(207, 255, 33, 0.918) !important;
+    color: rgb(207, 255, 33) !important;
     border-radius: 25%;
     transition: 0.05s !important;
 }
