@@ -20,5 +20,5 @@ Things I learned:
  - CSS only updates when the JS call stack is empty, so if you want to create a new DOM element, and immediately have its CSS transition, you need to use requestAnimationFrame.
  - Display/view code is probably easier to implement if it takes changes to a model, instead of having to figure out what changed based on only the current model state, and the fact that something changed.
  - Touch inputs don't play nicely with hover
- - How to switch and element to fixed positioning by using getBoundingClientRect()
+ - How to switch an element to fixed positioning by using getBoundingClientRect()
   
