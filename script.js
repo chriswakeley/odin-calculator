@@ -401,6 +401,9 @@ function handleOpClick(opButton) {
     flashElements(flashOnOp);
     switch (calcModel.state) {
         case calcState.enteringOp1:
+            if(calcModel.op1 === ""){
+                return;
+            }
             calcModel.state = calcState.operandEntered;
             calcModel.operator = opButton.textContent;
             updateDisplay();
@@ -415,6 +418,9 @@ function handleOpClick(opButton) {
             break;
 
         case calcState.enteringOp2:
+            if(calcModel.op2 === ""){
+                return;
+            }
             calcModel.op1 = operators[calcModel.operator](+(calcModel.op1), +(calcModel.op2));
             if (calcModel.op1 === "error") {
                 calcModel.op1 = "";
